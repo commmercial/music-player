@@ -1,0 +1,122 @@
+{
+  "name": "risk-player",
+  "version": "1.0.0",
+  "main": "main.js",
+  "bin": {
+    "risk": "./cli.js"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win nsis --x64 --publish never"
+  },
+  "keywords": [],
+  "author": "rootscripts",
+  "license": "MIT",
+  "description": "Risk - desktop music player.",
+  "devDependencies": {
+    "electron": "^41.7.1",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "cfonts": "^3.3.1",
+    "discord-rpc": "^4.0.1",
+    "electron-updater": "^6.8.9",
+    "hls.js": "^1.7.1",
+    "tone": "^15.1.22"
+  },
+  "productName": "Risk",
+  "homepage": "https://github.com/rootscripts/riff",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rootscripts/riff.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rootscripts/riff/issues"
+  },
+  "build": {
+    "appId": "com.risk.musicplayer",
+    "productName": "Risk",
+    "toolsets": {
+      "nsis": "1.2.1"
+    },
+    "npmRebuild": false,
+    "electronDownload": {
+      "cache": "./electron-cache"
+    },
+    "artifactName": "Risk-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!.github/**",
+      "!dist/**",
+      "!bin/**",
+      "!*.md",
+      "!strip_comments.js",
+      "!.riff_progress.md",
+      "!package-lock.json"
+    ],
+    "extraResources": [
+      {
+        "from": "bin",
+        "to": "bin",
+        "filter": ["yt-dlp.exe", "ffmpeg.exe", "ffprobe.exe"]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "AudioVideo"
+    },
+    "mac": {
+      "category": "public.app-category.music",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}"
+    },
+  "publish": []
+  }
+}

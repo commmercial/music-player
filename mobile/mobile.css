@@ -1,0 +1,19 @@
+/* iPhone sizing for the shared desktop interface. The original screens, typography,
+   colors, cards, and controls come from the desktop HTML/CSS. */
+:root { --risk-safe-bottom: env(safe-area-inset-bottom, 0px); }
+html, body { min-height: 100%; overscroll-behavior-y: none; }
+body { padding-top: env(safe-area-inset-top, 0px); -webkit-tap-highlight-color: transparent; }
+.titlebar { min-height: 42px; padding-left: 12px; padding-right: 12px; }
+.titlebar-controls { display: none !important; }
+.titlebar-drag { -webkit-app-region: no-drag; }
+button, input, select, textarea { touch-action: manipulation; }
+@media (max-width: 600px) {
+  .sidebar { bottom: var(--risk-safe-bottom) !important; }
+  .playbar { bottom: calc(56px + var(--risk-safe-bottom)) !important; }
+  .app-layout { margin-bottom: calc(156px + var(--risk-safe-bottom)) !important; }
+  .main-content { padding-bottom: 20px; }
+  .nav-item { min-height: 52px; }
+  .right-panel { bottom: calc(56px + var(--risk-safe-bottom)) !important; }
+  .modal-backdrop { padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); }
+  input, textarea, select { font-size: 16px !important; }
+}

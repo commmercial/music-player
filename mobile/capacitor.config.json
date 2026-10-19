@@ -1,0 +1,6 @@
+{
+  "appId": "com.risk.musicplayer.mobile",
+  "appName": "Risk",
+  "webDir": "www",
+  "ios": { "contentInset": "automatic", "backgroundColor": "#100c18" }
+}
