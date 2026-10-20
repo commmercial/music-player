@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Risk Music Player",
+  "short_name": "Risk",
+  "description": "Risk Music Player for iPhone",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#100c18",
+  "theme_color": "#17131d",
+  "icons": [
+    {
+      "src": "./assets/icon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
