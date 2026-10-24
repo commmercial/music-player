@@ -527,6 +527,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       duration: track.duration || 0,
       thumbnail: origThumb,
       url: track.url || '',
+      artistUrl: track.artistUrl || '',
       platform: track.platform || state.platform,
       startTimestamp: Math.floor(Date.now() / 1000)
     });

@@ -73,13 +73,12 @@ function _setActivity(trackInfo) {
     activity.timestamps.end = startEpoch + Math.floor(trackInfo.duration);
   }
 
-  if (trackInfo.url) {
-    const label = trackInfo.platform === 'soundcloud'
-      ? 'Listen on SoundCloud'
-      : 'Listen on YouTube';
-
+  const listenUrl = getHttpsUrl(trackInfo.url);
+  const artistUrl = getHttpsUrl(trackInfo.artistUrl) || getArtistSearchUrl(trackInfo);
+  if (listenUrl && artistUrl) {
     activity.buttons = [
-      { label, url: trackInfo.url }
+      { label: 'Listen Along', url: listenUrl },
+      { label: 'Artist', url: artistUrl },
     ];
   }
 
@@ -90,6 +89,24 @@ function _setActivity(trackInfo) {
   }).catch(err => {
     console.warn('[Discord RPC] SET_ACTIVITY error:', err.message || err);
   });
+}
+
+function getHttpsUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.toString() : '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function getArtistSearchUrl(trackInfo) {
+  const artist = String(trackInfo.artist || '').trim();
+  if (!artist || artist.toLowerCase() === 'unknown artist') return '';
+  const query = encodeURIComponent(artist);
+  return trackInfo.platform === 'soundcloud'
+    ? 'https://soundcloud.com/search/people?q=' + query
+    : 'https://www.youtube.com/results?search_query=' + query;
 }
 
 function updatePresence(trackInfo) {

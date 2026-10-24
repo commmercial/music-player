@@ -321,6 +321,7 @@ function normalizeTrack(track) {
     duration: Number(track.duration) || 0,
     thumbnail: track.thumbnail || '',
     url: track.url || '',
+    artistUrl: track.artistUrl || '',
     platform: track.platform || 'soundcloud',
     searchQuery: track.searchQuery || ''
   };
@@ -380,6 +381,7 @@ async function searchSoundcloud(query, limit = 14) {
         duration: item.duration || 0,
         thumbnail: thumbnail,
         url: trackUrl,
+        artistUrl: item.uploader_url || item.channel_url || '',
         platform: 'soundcloud'
       };
     });
@@ -1074,7 +1076,14 @@ function directYoutubeSearch(query, filterSpam = false) {
               if (v && v.videoId) {
                 const vidId = v.videoId;
                 const title = (v.title?.runs?.[0]?.text || 'untitled');
-                const artist = (v.ownerText?.runs?.[0]?.text || 'unknown artist');
+                const ownerRun = v.ownerText?.runs?.[0];
+                const artist = (ownerRun?.text || 'unknown artist');
+                const artistBrowse = ownerRun?.navigationEndpoint?.browseEndpoint;
+                const artistUrl = artistBrowse?.canonicalBaseUrl
+                  ? 'https://www.youtube.com' + artistBrowse.canonicalBaseUrl
+                  : artistBrowse?.browseId
+                    ? 'https://www.youtube.com/channel/' + encodeURIComponent(artistBrowse.browseId)
+                    : '';
                 const durStr = v.lengthText?.simpleText || '0:00';
                 const durSec = parseDurationSeconds(durStr);
                 const thumbs = v.thumbnail?.thumbnails || [];
@@ -1093,6 +1102,7 @@ function directYoutubeSearch(query, filterSpam = false) {
                   duration: durSec,
                   thumbnail: thumbnail,
                   url: `https://www.youtube.com/watch?v=${vidId}`,
+                  artistUrl,
                   platform: 'youtube',
                   isCached: !!isCached
                 });
@@ -1375,6 +1385,13 @@ function parseYtmSongs(json) {
       let duration = 0;
       if (clean.length && parseYtmDuration(clean[clean.length - 1])) duration = parseYtmDuration(clean.pop());
       const artist = (clean[0] || '').replace(/\s*-\s*Topic$/i, '').trim();
+      const artistRun = runsOf(1).find((run) => run.text && run.text.trim() === (clean[0] || '').trim());
+      const artistBrowse = artistRun?.navigationEndpoint?.browseEndpoint;
+      const artistUrl = artistBrowse?.canonicalBaseUrl
+        ? 'https://music.youtube.com' + artistBrowse.canonicalBaseUrl
+        : artistBrowse?.browseId
+          ? 'https://music.youtube.com/channel/' + encodeURIComponent(artistBrowse.browseId)
+          : '';
       const album = clean[1] || '';
 
       const thumbs = (r.thumbnail && r.thumbnail.musicThumbnailRenderer && r.thumbnail.musicThumbnailRenderer.thumbnail && r.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails) || [];
@@ -1382,7 +1399,7 @@ function parseYtmSongs(json) {
       thumbnail = thumbnail.replace(/=w\d+-h\d+[^&]*$/, '=w544-h544');
 
       if (!title || (duration && duration < 30)) continue;
-      out.push({ id: videoId, title, artist: artist || 'Unknown Artist', album, duration, thumbnail });
+      out.push({ id: videoId, title, artist: artist || 'Unknown Artist', artistUrl, album, duration, thumbnail });
     }
   }
   return out;
@@ -1402,6 +1419,7 @@ async function searchYtmTracks(query, limit = 16) {
         id: s.id,
         title: s.title,
         artist: s.artist,
+        artistUrl: s.artistUrl || '',
         duration: s.duration || 180,
         thumbnail: s.thumbnail || `https://i.ytimg.com/vi/${s.id}/hqdefault.jpg`,
         url: `https://www.youtube.com/watch?v=${s.id}`,
@@ -1626,6 +1644,7 @@ async function handleSearch(req, res, query, platform = 'youtube', limit = 20) {
                                                                duration: item.duration || 0,
                                                                thumbnail: thumbnail,
                                                                url: trackUrl,
+                                                               artistUrl: item.uploader_url || item.channel_url || '',
                                                                platform: platform,
                                                                isCached: !!isCached
       };
@@ -1774,6 +1793,7 @@ async function fetchArtistInfo(artistName) {
 
   let bio = '';
   let avatar = '';
+  let artistUrl = '';
   let isVerified = false;
   let tracks = [];
   let resolvedName = cleanName;
@@ -1793,6 +1813,7 @@ async function fetchArtistInfo(artistName) {
     if (dzData && dzData.data && dzData.data.length > 0) {
       const topArtist = dzData.data[0];
       if (topArtist.name) resolvedName = topArtist.name;
+      artistUrl = topArtist.link || '';
       avatar = topArtist.picture_xl || topArtist.picture_big || topArtist.picture_medium || '';
       isVerified = (topArtist.nb_fan || 0) > 30000;
 
@@ -1858,6 +1879,7 @@ async function fetchArtistInfo(artistName) {
 
   const result = {
     name: resolvedName,
+    artistUrl,
     bio: (bio || '').trim(),
     avatar: avatar || (tracks[0] ? tracks[0].thumbnail : ''),
     isVerified: isVerified,
